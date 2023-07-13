@@ -10,7 +10,7 @@ import java.util.List;
 public interface ToDoClient {
     List<ToDoItem> getAll() throws IOException;
     ToDoItem getItemById(int id) throws IOException;
-    ToDoItem createItem(CreateToDo createToDo) throws IOException;
+    ToDoItem createItem(String title) throws IOException;
     void deleteById(int id) throws IOException;
     ToDoItem renameById(int id, String newName) throws IOException;
     ToDoItem markCompleted(int id, boolean completed) throws IOException;

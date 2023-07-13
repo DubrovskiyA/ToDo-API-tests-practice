@@ -1,3 +1,4 @@
+import Extantions.ToDoProvider;
 import ToDo.CreateToDo;
 import ToDo.ToDoClient;
 import ToDo.ToDoItem;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,16 +27,15 @@ public class ToDoBusinessTest {
         client=new ToDoClientApache("https://todo-app-sky.herokuapp.com/");
     }
 
+    @Test
     @DisplayName("Проверяем, что задача создается")
     @Tag("Positive")
     public void shouldCreateTask() throws IOException {
     //Получить список задач
         List<ToDoItem> listBefore=client.getAll();
     //Создать задачу
-        CreateToDo toDo=new CreateToDo();
-        String title="New extra super task";
-        toDo.setTitle(title);
-        ToDoItem newItem=client.createItem(toDo);
+        String title="Super job";
+        ToDoItem newItem=client.createItem(title);
     //Проверить, что задача отображается в списке
         assertFalse(newItem.getUrl().isBlank());
         assertFalse(newItem.isCompleted());
@@ -85,26 +86,26 @@ public class ToDoBusinessTest {
     @Test
     @DisplayName("Проверяем, что задачу можно переименовать")
     @Tag("Positive")
-    public void shouldRenameTask() throws IOException {
-        ToDoItem newItem = createNewTask();
-        String newTitle="wash my cat";
+    @ExtendWith(ToDoProvider.class)
+    public void shouldRenameTask(ToDoItem newItem) throws IOException {
+        String newTitle="wash my car";
         ToDoItem renamedItem=client.renameById(newItem.getId(),newTitle);
         assertEquals(newTitle,renamedItem.getTitle());
     }
     @Test
     @DisplayName("Проверяем, что задачу можно отметить выполненной")
     @Tag("Positive")
-    public void shouldMarkTaskAsCompleted() throws IOException {
-        ToDoItem newItem=createNewTask();
-        assertFalse(newItem.isCompleted());
-        ToDoItem markItem=client.markCompleted(newItem.getId(), true);
+    @ExtendWith(ToDoProvider.class)
+    public void shouldMarkTaskAsCompleted(ToDoItem item) throws IOException {
+        assertFalse(item.isCompleted());
+        ToDoItem markItem=client.markCompleted(item.getId(), true);
         assertTrue(markItem.isCompleted());
     }
     @Test
     @DisplayName("Проверяем, что выполенную задачу можно отметить снова невыполненной")
     @Tag("Positive")
-    public void shouldMarkTaskAsNonCompleted() throws IOException {
-        ToDoItem item=createNewTask();
+    @ExtendWith(ToDoProvider.class)
+    public void shouldMarkTaskAsNonCompleted(ToDoItem item) throws IOException {
         assertFalse(item.isCompleted());
         ToDoItem itemTrue=client.markCompleted(item.getId(), true);
         assertTrue(itemTrue.isCompleted());
@@ -114,13 +115,13 @@ public class ToDoBusinessTest {
     @Test
     @DisplayName("Проверяем, что задачу можно удалить")
     @Tag("Positive")
-    public void shouldDeleteTask() throws IOException {
-        ToDoItem newItem=createNewTask();
+    @ExtendWith(ToDoProvider.class)
+    public void shouldDeleteTask(ToDoItem item) throws IOException {
         List<ToDoItem> listBefore=client.getAll();
-        client.deleteById(newItem.getId());
+        client.deleteById(item.getId());
         List<ToDoItem> listAfter=client.getAll();
         assertEquals(1,listBefore.size()-listAfter.size());
-        assertThrows(UnrecognizedPropertyException.class, ()->client.getItemById(newItem.getId()));
+        assertThrows(UnrecognizedPropertyException.class, ()->client.getItemById(item.getId()));
     }
     @Test
     @DisplayName("Проверяем, что можно удалить все задачи")
@@ -139,10 +140,10 @@ public class ToDoBusinessTest {
         assertTrue(list3.size()==0);
     }
     @Test
-    @DisplayName("Проверяем, что при повторной отметке задачи выполненной задача остается отмеченной как выполненная")
+    @DisplayName("Проверяем, что при повторной отметке задачи выполненной, задача остается отмеченной как выполненная")
     @Tag("Negative")
-    public void should() throws IOException {
-        ToDoItem item=createNewTask();
+    @ExtendWith(ToDoProvider.class)
+    public void shouldNotChangeCompletedIfAlreadyTrue(ToDoItem item) throws IOException {
         assertFalse(item.isCompleted());
         ToDoItem itemTrue=client.markCompleted(item.getId(),true);
         assertTrue(itemTrue.isCompleted());
@@ -151,9 +152,7 @@ public class ToDoBusinessTest {
     }
 
     private ToDoItem createNewTask() throws IOException {
-        CreateToDo toDo=new CreateToDo();
-        toDo.setTitle("wash my dog");
-        ToDoItem newItem=client.createItem(toDo);
+        ToDoItem newItem=client.createItem("wash my dog");
         return newItem;
     }
 }

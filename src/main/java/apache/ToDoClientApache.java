@@ -54,9 +54,11 @@ public class ToDoClientApache implements ToDoClient {
     }
 
     @Override
-    public ToDoItem createItem(CreateToDo createToDo) throws IOException {
+    public ToDoItem createItem(String title) throws IOException {
+        CreateToDo toDo=new CreateToDo();
+        toDo.setTitle(title);
         HttpPost post=new HttpPost(URL);
-        String body= mapper.writeValueAsString(createToDo);
+        String body= mapper.writeValueAsString(toDo);
         StringEntity entity=new StringEntity(body, ContentType.APPLICATION_JSON);
         post.setEntity(entity);
         HttpResponse response=client.execute(post);
