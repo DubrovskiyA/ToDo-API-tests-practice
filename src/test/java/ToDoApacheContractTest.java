@@ -13,12 +13,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ToDoContractTest {
+public class ToDoApacheContractTest {
     private static final String URL="https://todo-app-sky.herokuapp.com/";
     private HttpClient client;
     @BeforeEach
